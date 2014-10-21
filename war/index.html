@@ -1,0 +1,261 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
+<!-- above set at the top of the file will set     -->
+<!-- the browser's rendering engine into           -->
+<!-- "Quirks Mode". Replacing this declaration     -->
+<!-- with a "Standards Mode" doctype is supported, -->
+<!-- but may lead to some differences in layout.   -->
+
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Tweet MAP</title>
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px;
+        font-family: Arial, Helvetica, sans-serif;
+		background:#dedede;
+      }
+    	body {
+			margin:0px;
+			padding:0px;
+
+		}
+		img{
+			border:none;
+		}
+		header{
+			width:250px;
+			height:80px;
+			background:url(images/top_wht_bg.png) repeat-x;
+			float:left;
+	
+		}
+		.cont{
+			margin-top:15px;
+			font-size: 36px;
+			font-weight: bold;		
+			text-align:center;
+		}
+		
+		fieldset.search {
+			border: none;
+			width: 217px;
+			margin: 0 auto;
+			background: #8AABCC;
+		}
+		.search input, .search button {
+			border: none;
+			float: left;
+			margin-top:1px;margin-left:2px;
+		}
+		.search input.box {
+			margin-top:3px;
+			width: 186px;
+			height: 18px;
+			border:none
+		}
+		.search input.box:focus {
+			outline: none;
+		}
+		#type-selector {
+        color: #fff;
+		width: 217px;
+        background-color: #8AABCC;
+        padding: 5px 11px 0px 11px;
+		margin: 0 auto;
+      }
+
+      #type-selector label {
+        font-family: Roboto;
+        font-size: 13px;
+        font-weight: 300;
+      }	
+	 .button{
+	 text-decoration:none; ext-align:center; padding:11px 32px;  border:solid 1px #004F72;-webkit-border-radius:4px;
+	 -moz-border-radius:4px; border-radius: 4px; 
+	 font:18px Arial, Helvetica, sans-serif; font-weight:bold; color:#E5FFFF; background-color:#3BA4C7; 
+	 background-image: -moz-linear-gradient(top, #3BA4C7 0%, #1982A5 100%); 
+	 background-image: -webkit-linear-gradient(top, #3BA4C7 0%, #1982A5 100%); 
+	 background-image: -o-linear-gradient(top, #3BA4C7 0%, #1982A5 100%); 
+	 background-image: -ms-linear-gradient(top, #3BA4C7 0% ,#1982A5 100%); 
+	 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1982A5', endColorstr='#1982A5',GradientType=0 ); 
+	 background-image: linear-gradient(top, #3BA4C7 0% ,#1982A5 100%);   
+	 -webkit-box-shadow:0px 0px 2px #bababa, inset 0px 0px 1px #ffffff; 
+	 -moz-box-shadow: 0px 0px 2px #bababa,  inset 0px 0px 1px #ffffff;  
+	 box-shadow:0px 0px 2px #bababa, inset 0px 0px 1px #ffffff; 
+	margin-left:40px;	
+  
+  }
+    </style>
+      
+      
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDY0kkJiTPVd2U7aTOAwhc9ySH6oHxOIYM&sensor=false"></script>
+    <script>
+var map;
+var marker;
+
+function initialize() {
+  // Create the map.
+	  var mapOptions = {
+	    zoom: 4,
+	    center: new google.maps.LatLng(37.09024, -95.712891),
+	    mapTypeId: google.maps.MapTypeId.TERRAIN,
+	    panControl: true,
+      	zoomControl: true,
+      	scaleControl: true
+	  };
+
+  	map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
+
+	var citymap = {};
+	citymap['chicago'] = {
+	  center: new google.maps.LatLng(41.878113, -87.629798),
+	  tweet : 'hi'
+	};
+	
+	var cityCircle;
+  // Construct the circle for each value in citymap.
+  for (var city in citymap) {
+    var populationOptions = {
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: '#FF0000',
+      fillOpacity: 1,
+      map: map,
+      center: citymap[city].center,
+      radius: 2000
+    };
+    // Add the circle for this city to the map.
+    cityCircle = new google.maps.Circle(populationOptions);
+  }
+ 	// Sets a listener on a radio button to change the filter type on Places
+	  // Autocomplete.
+	  function setupClickListener(id, mapType) {
+	    var radioButton = document.getElementById(id);
+    	google.maps.event.addDomListener(radioButton, 'click', function() {
+		map.setMapTypeId(google.maps.MapTypeId[mapType]);
+		});
+		
+	  }
+	
+	  setupClickListener('satellite', 'SATELLITE');
+	  setupClickListener('roadmap', 'ROADMAP');
+	  setupClickListener('terrain', 'TERRAIN');
+	  setupClickListener('hybrid', 'HYBRID');  
+  
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+	function loadXMLDoc()
+	{
+		google.maps.event.addDomListener(map, '', initialize);
+		var filter = document.getElementById('filter');
+		var xmlhttp;
+	    xmlhttp=new XMLHttpRequest();
+
+		xmlhttp.onreadystatechange=function()
+		  {
+		  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+		    {
+		    	//document.getElementById("myDiv").innerHTML=xmlhttp.responseText; 
+		    	
+		     	var tweetdata = xmlhttp.responseText;
+		     	
+		      	var res = tweetdata.split(";");
+				var tweets;
+				
+				
+				for (var i=0;i<res.length -1;i++)
+				  {
+				  tweets = res[i].split("tweetmap#");
+				  
+				   var populationOptions = {
+				      strokeColor: '#FF0000',
+				      strokeOpacity: 0.8,
+				      strokeWeight: 2,
+				      fillColor: '#FF0000',
+				      fillOpacity: 1,
+				      map: map,
+				      center: new google.maps.LatLng(tweets[3],tweets[4]),
+				      radius: 2000
+				    };
+
+			      cityCircle = new google.maps.Circle(populationOptions);
+			      
+			          marker = new google.maps.Marker({
+		              map: map,position: new google.maps.LatLng(tweets[3],tweets[4]),
+		              animation: google.maps.Animation.DROP,
+		              icon: 'tweet_blue.png'
+		              });
+		              
+		                marker.setTitle((i + 1).toString());
+    					attachSecretMessage(marker, tweets[0]); 
+				  }
+				      	
+			document.getElementById("tweet_count").innerHTML = res.length - 1; 	      	
+		    }
+		  }
+		 
+		xmlhttp.open("GET","tweetchart?filter=%23"+filter.value,true);
+		xmlhttp.send();
+
+	}
+
+function attachSecretMessage(marker, tweet) {
+  var infowindow = new google.maps.InfoWindow({
+    content: tweet
+  });
+
+  google.maps.event.addListener(marker, 'click', function() {
+    infowindow.open(marker.get('map'), marker);
+  });
+}
+
+
+    </script>    
+  </head>
+  <body>
+	  		<header>
+					<div class="cont">Tweet Map</div>
+			<br><br>
+	
+			<div style="margin-left:5px">Search Tweet : </div>
+				<fieldset class="search">
+					<input type="text" class="box" name="filter" id="filter"/>		
+					<input type="image" class="go" src="images/Search_Button1.gif" alt="go" onClick="loadXMLDoc()"/>
+				</fieldset>		
+			
+			<div style="text-align:center;font-weight:bold;">Total Tweets</div>
+			<div style="text-align:center;font-weight:bold;margin-top:5px;color:red" id="tweet_count">3,254,124</div>
+			
+			<div id="type-selector" class="controls">
+				Map Type : <br/>
+				  <input type="radio" name="type" id="hybrid" checked="checked" style="margin-left:34px" onClick="map.setMapTypeId(google.maps.MapTypeId.TERRAIN);">
+				  <label for="changetype-all">Google Hybrid</label> <br />
+			
+				  <input type="radio" name="type" id="roadmap" style="margin-left:34px">
+				  <label for="changetype-establishment">Google Roadmap</label>  <br />
+			
+				  <input type="radio" name="type" id="satellite" style="margin-left:34px">
+				  <label for="changetype-geocode">Google Satellite</label>  <br />
+				  
+				  <input type="radio" name="type" id="terrain" style="margin-left:34px">
+				  <label for="changetype-geocode">Google Terrain</label> <br />			  
+				</div><br>
+			     <a href="heatMap.html" class="button"/> Heat Map</a>
+			</header>
+	    <div id="map-canvas"></div>
+  </body>
+</html>
+

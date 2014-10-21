@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
+<!-- above set at the top of the file will set     -->
+<!-- the browser's rendering engine into           -->
+<!-- "Quirks Mode". Replacing this declaration     -->
+<!-- with a "Standards Mode" doctype is supported, -->
+<!-- but may lead to some differences in layout.   -->
+
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Tweet MAP</title>
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px;
+        font-family: Arial, Helvetica, sans-serif;
+		background:#dedede;
+      }
+    	body {
+			margin:0px;
+			padding:0px;
+
+		}
+		img{
+			border:none;
+		}
+		header{
+			width:250px;
+			height:80px;
+			background:url(images/top_wht_bg.png) repeat-x;
+			float:left;
+	
+		}
+		.cont{
+			margin-top:15px;
+			font-size: 36px;
+			font-weight: bold;		
+			text-align:center;
+		}
+		
+		fieldset.search {
+			border: none;
+			width: 217px;
+			margin: 0 auto;
+			background: #8AABCC;
+		}
+		.search input, .search button {
+			border: none;
+			float: left;
+			margin-top:1px;margin-left:2px;
+		}
+		.search input.box {
+			margin-top:3px;
+			width: 186px;
+			height: 18px;
+			border:none
+		}
+		.search input.box:focus {
+			outline: none;
+		}
+    </style>
+      
+      
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDY0kkJiTPVd2U7aTOAwhc9ySH6oHxOIYM&sensor=false"></script>
+    <script>
+var map;
+var marker;
+
+function initialize() {
+  // Create the map.
+	  var mapOptions = {
+	    zoom: 4,
+	    center: new google.maps.LatLng(37.09024, -95.712891),
+	    mapTypeId: google.maps.MapTypeId.TERRAIN,
+	    panControl: true,
+      	zoomControl: true,
+      	scaleControl: true
+	  };
+
+  	map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
+
+	var citymap = {};
+	citymap['chicago'] = {
+	  center: new google.maps.LatLng(41.878113, -87.629798),
+	  tweet : 'hi'
+	};
+	
+	var cityCircle;
+  // Construct the circle for each value in citymap.
+  for (var city in citymap) {
+    var populationOptions = {
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: '#FF0000',
+      fillOpacity: 1,
+      map: map,
+      center: citymap[city].center,
+      radius: 2000
+    };
+    // Add the circle for this city to the map.
+    cityCircle = new google.maps.Circle(populationOptions);
+  }
+  
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+	function loadXMLDoc()
+	{
+		google.maps.event.addDomListener(map, '', initialize);
+		var filter = document.getElementById('filter');
+		var xmlhttp;
+	    xmlhttp=new XMLHttpRequest();
+
+		xmlhttp.onreadystatechange=function()
+		  {
+		  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+		    {
+		    	//document.getElementById("myDiv").innerHTML=xmlhttp.responseText; 
+		    	
+		     	var tweetdata = xmlhttp.responseText;
+		      	var res = tweetdata.split(";");
+				var tweets;
+				
+				
+				for (var i=0;i<res.length -1;i++)
+				  {
+				  tweets = res[i].split(",");
+				  
+				   var populationOptions = {
+				      strokeColor: '#FF0000',
+				      strokeOpacity: 0.8,
+				      strokeWeight: 2,
+				      fillColor: '#FF0000',
+				      fillOpacity: 1,
+				      map: map,
+				      center: new google.maps.LatLng(tweets[3],tweets[4]),
+				      radius: 2000
+				    };
+
+			      cityCircle = new google.maps.Circle(populationOptions);
+			      
+			          marker = new google.maps.Marker({
+		              map: map,position: new google.maps.LatLng(tweets[3],tweets[4]),
+		              animation: google.maps.Animation.DROP,
+		              icon: 'tweet_blue.png'
+		              });
+		              
+		                marker.setTitle((i + 1).toString());
+    					attachSecretMessage(marker, tweets[0]); 
+				  }
+				      	
+			document.getElementById("tweet_count").innerHTML = res.length - 1; 	      	
+		    }
+		  }
+		 
+		xmlhttp.open("GET","tweetchart?filter=%23"+filter.value,true);
+		xmlhttp.send();
+
+	}
+
+function attachSecretMessage(marker, tweet) {
+  var infowindow = new google.maps.InfoWindow({
+    content: tweet
+  });
+
+  google.maps.event.addListener(marker, 'click', function() {
+    infowindow.open(marker.get('map'), marker);
+  });
+}
+
+
+    </script>    
+  </head>
+  <body>
+	  		<header>
+					<div class="cont">Tweet Map</div>
+			<br><br>
+	
+			<div style="margin-left:5px">Search Tweet : </div>
+				<fieldset class="search">
+					<input type="text" class="box" name="filter" id="filter"/>		
+					<input type="image" class="go" src="images/Search_Button1.gif" alt="go" onclick="loadXMLDoc()"/>
+				</fieldset>		
+			
+			<div style="text-align:center;font-weight:bold;">Total Tweets</div>
+			<div style="text-align:center;font-weight:bold;margin-top:5px;color:red" id="tweet_count">3,254,124</div>
+			
+			<div id="myDiv"></div>
+			     
+			</header>
+	    <div id="map-canvas"></div>
+  </body>
+</html>
+
